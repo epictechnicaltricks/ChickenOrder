@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Chicken App</string>
+    <string name="api_path">https://cityneedzapi.000webhostapp.com/chicken-api/</string>
+</resources>
