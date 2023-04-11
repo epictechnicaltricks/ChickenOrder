@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -44,6 +45,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
@@ -81,7 +83,7 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
 
     String ex;
     int  hour1,min1;
-
+   String price_from_api;
 
     String category_name,category_id;
     String service_name;
@@ -90,7 +92,7 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
     //String service_type="";
 
     RadioButton yes, no;
-    LinearLayout other_person_layout, desc_layout;
+    LinearLayout other_person_layout, desc_layout,  other_person_layout_pickup;
 
     EditText person_address, person_number, person_name, desc, person_pincode, person_email;
 
@@ -114,6 +116,11 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
     TextView date_text;
 
 
+    private RequestNetwork product_api;
+    private RequestNetwork.RequestListener _api_listener;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,6 +128,46 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
 
 
         date_text = findViewById(R.id.date_text);
+        product_api = new RequestNetwork(this);
+
+        _api_listener= new RequestNetwork.RequestListener() {
+            @Override
+            public void onResponse(String tag, String response, HashMap<String, Object> responseHeaders) {
+                try {
+
+                    if (response.contains("200")) {
+                        HashMap<String, Objects> map;
+                        map = new Gson().fromJson(response, new TypeToken<HashMap<String, Object>>() {}.getType());
+                        String values = (new Gson()).toJson(map.get("user"), new TypeToken<ArrayList<HashMap<String, Object>>>() {}.getType());
+                        category_list = new Gson().fromJson(values, new TypeToken<ArrayList<HashMap<String, Object>>>() {}.getType());
+                        Collections.reverse(category_list);
+                        listview1.setAdapter(new Listview1Adapter(category_list));
+                        ((BaseAdapter)listview1.getAdapter()).notifyDataSetChanged();
+                        spinner_category.setAdapter(new Listview1Adapter(category_list));
+
+
+
+
+
+                    } else {
+
+                       category_list.clear();
+                        Toast.makeText(getApplicationContext(), "No data found", Toast.LENGTH_LONG).show();
+                    }
+
+
+                } catch (Exception e) {
+
+                    Log.d("api_error", e.toString());
+                    Toast.makeText(getApplicationContext(), "Error on API", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onErrorResponse(String tag, String message) {
+                Toast.makeText(Book_Service_Activity.this, "No internet!", Toast.LENGTH_SHORT).show();
+            }
+        };
 
         API();
         Spinner spino = findViewById(R.id.qty_type_spinner);
@@ -160,8 +207,10 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
         no = findViewById(R.id.radio_no);
         no.setChecked(true);
         other_person_layout = findViewById(R.id.other_person_layout);
-
+        other_person_layout_pickup =findViewById(R.id.other_person_layout_pickup);
         other_person_layout.setVisibility(View.GONE);
+        other_person_layout_pickup.setVisibility(View.GONE);
+
         yes.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -185,7 +234,9 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
 
                 if(!charSequence.toString().equals(""))
                 {
-                    switch (category_name)
+                    price.setText("Price: ₹"+(Double.parseDouble(desc.getText().toString()))*Double.parseDouble(price_from_api)+"");
+
+                 /*   switch (category_name)
                     {
                         case "Chicken": price.setText("Price: ₹"+(Double.parseDouble(charSequence.toString()))*220+"");
                             break;
@@ -194,7 +245,7 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
                         case "Prawn": price.setText("Price: ₹"+(Double.parseDouble(charSequence.toString()))*450+"");
                             break;
 
-                    }
+                    }*/
                 }else {
 
                     price.setText("Price : ₹0");
@@ -219,22 +270,7 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
         listview2 =  findViewById(R.id.listview_sevices);
         listview3 =  findViewById(R.id.listview_service_type);
         listview4 =  findViewById(R.id.listview_payment_mode);
-        //listview5 =  findViewById(R.id.listview_default_desciption);
 
-
-    /*    spinner_description.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int _position, long l) {
-
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-
-            }
-        });*/
 
         spinner_category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -243,14 +279,17 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
 
                 try {
                     // category_id = Objects.requireNonNull(category_list.get(i).get("category_id")).toString();
-                    category_name = Objects.requireNonNull(category_list.get(i).get("name")).toString();
+                  /*  category_name = Objects.requireNonNull(category_list.get(i).get("name")).toString();
                     listview2.setAdapter(new Listview2Adapter(service_list));
                     ((BaseAdapter)listview2.getAdapter()).notifyDataSetChanged();
-                    spinner_service.setAdapter(new Listview2Adapter(service_list));
+                    spinner_service.setAdapter(new Listview2Adapter(service_list));*/
                     desc.setText("1");
                     if(!desc.toString().equals(""))
                     {
-                        switch (category_name)
+
+                        price.setText("Price: ₹"+(Double.parseDouble(desc.getText().toString()))*Double.parseDouble(price_from_api)+"");
+
+                       /* switch (category_name)
                         {
 
 
@@ -261,7 +300,7 @@ public class Book_Service_Activity extends AppCompatActivity implements AdapterV
                             case "Prawn": price.setText("Price: ₹"+(Double.parseDouble(desc.getText().toString()))*450+"");
                                 break;
 
-                        }
+                        }*/
                     } else {
 
                         price.setText("Price : ₹0");
@@ -273,8 +312,6 @@ Util.showMessage(getApplicationContext(), e.toString());
                 }
 
 
-                //  Util.showMessage(getApplicationContext(),category_id);
-                 //  service_API_request(category_id);
 
             }
 
@@ -320,10 +357,14 @@ Util.showMessage(getApplicationContext(), e.toString());
             public void onItemSelected(AdapterView<?> adapterView, View view, int _position, long l) {
 
                 order_type = Objects.requireNonNull(service_type_list.get(_position).get("name"))+"";
+                if(Objects.requireNonNull(service_type_list.get(_position).get("name")).toString().equals("HOME DELIVERY")) {
+                    order_type = "HOME";
 
-                if(Objects.requireNonNull(service_type_list.get(_position).get("name")).toString().equals("HOME")){
+                }
+                    if(Objects.requireNonNull(service_type_list.get(_position).get("name")).toString().equals("HOME DELIVERY")){
 
                     other_person_layout.setVisibility(View.VISIBLE);
+                    other_person_layout_pickup.setVisibility(View.VISIBLE);
                     //showMessage(class_id);
                 } else {
 
@@ -331,6 +372,8 @@ Util.showMessage(getApplicationContext(), e.toString());
                     //showMessage(year_id)
                     //default_desc_API_request(service_id);
                     other_person_layout.setVisibility(View.GONE);
+                    other_person_layout_pickup.setVisibility(View.VISIBLE);
+
                 }
                 //Toast.makeText(Book_Service_Activity.this, "selected "+ _position, Toast.LENGTH_SHORT).show();
 
@@ -365,12 +408,21 @@ Util.showMessage(getApplicationContext(), e.toString());
 
     }
 
+
+    private void get_all_products_request() {
+        // Toast.makeText(this, "LOADING ALL PRODUCTS", Toast.LENGTH_LONG).show();
+        product_api.startRequestNetwork(RequestNetworkController.GET,
+                "https://cityneedzapi.000webhostapp.com/chicken-api/product_show.php",
+                "no tag", _api_listener);
+    }
+
+
     private void init()
     {
-        insert_to_spinner();
-        refresh_spinner();
+        //insert_to_spinner();
+        //refresh_spinner();
         //category_API_request();
-
+        get_all_products_request();
 
 
         SharedPreferences sh = getSharedPreferences("MySharedPref", Context.MODE_PRIVATE);
@@ -388,6 +440,9 @@ Util.showMessage(getApplicationContext(), e.toString());
        /* category_api = new RequestNetwork(this);
         service_api = new RequestNetwork(this);
         default_desc_api = new RequestNetwork(this);*/
+
+
+
         book_now_api = new RequestNetwork(this);
 
         ////API LISTENERS
@@ -620,26 +675,7 @@ Util.showMessage(getApplicationContext(), e.toString());
                 && !person_pincode.getText().toString().trim().equals("") && person_pincode.getText().toString().length()==6 && !desc.getText().toString().trim().equals(""))
         {
             _telegramLoaderDialog(true);
-             /*   book_now_api.startRequestNetwork(RequestNetworkController.GET,
-                        getResources().getString(R.string.api_path)+"bookService.php?" +
-                                "booked_user_id="+ 0 +
-                                "&booked_user_time=" + st +
-                                "&booked_user_date=" + sd +
-                                "&booked_user_type=" + "guest" +
-                                "&bookservice_categoryid=" + "0" +
-                                "&bookservice_categoryname=" + category_name +
-                                "&bookservice_qty=" + desc.getText().toString().trim() +
-                                "&bookservice_defaultdescription=" + default_description +
-                                "&bookservice_description=" + "THIS IS ORDER NOTE" +
-                                "&bookservice_location=" +   person_address.getText().toString().trim() +
-                                "&bookservice_contactperson=" + person_name.getText().toString().trim() +
-                                "&bookservice_mobileno=" +    person_number.getText().toString().trim() +
-                                "&bookservice_areapincode=" + person_pincode.getText().toString().trim() +
-                                "&bookservice_emailid=" + person_email.getText().toString().trim() +
-                                "&bookservice_order_type=" + order_type +
-                                "&bookservice_paymentmode=" + payment_mode_name +
-                                "&booked_order_id=" + order_id ,
-                        "no tag", _book_now__api_listener);*/
+
 
                 ////////////////
             book_now_api.startRequestNetwork(RequestNetworkController.GET,
@@ -671,10 +707,21 @@ Util.showMessage(getApplicationContext(), e.toString());
         }
 
         else {
-            _telegramLoaderDialog(true);
-            book_now_api.startRequestNetwork(RequestNetworkController.GET,
-                    "https://cityneedzapi.000webhostapp.com/chicken-api/bookService.php?booked_user_id=123456&booked_user_type=1&bookservice_categoryid=3&bookservice_categoryname="+category_name+"&bookservice_qty="+desc.getText().toString().trim()+"KG&bookservice_defaultdescription="+price.getText().toString()+"&bookservice_description=tyrt&bookservice_location=odisha&bookservice_contactperson=GVIT Developer&bookservice_mobileno=1234567890&bookservice_areapincode=761012&bookservice_paymentmode=UPI&bookservice_emailid=313123@gmail.com&booked_order_id="+order_id+"&booked_user_time="+st+"&booked_user_date="+sd+"&bookservice_order_type="+order_type,
-                    "no tag", _book_now__api_listener);
+
+
+            if(person_number.getText().toString().length()==10
+                    &&  person_email.getText().toString().trim().contains("@"))
+            {
+
+                _telegramLoaderDialog(true);
+                book_now_api.startRequestNetwork(RequestNetworkController.GET,
+                        "https://cityneedzapi.000webhostapp.com/chicken-api/bookService.php?booked_user_id=123456&booked_user_type=1&bookservice_categoryid=3&bookservice_categoryname="+category_name+"&bookservice_qty="+desc.getText().toString().trim()+"KG&bookservice_defaultdescription="+price.getText().toString()+"&bookservice_description=tyrt&bookservice_location=odisha&bookservice_contactperson=GVIT Developer&bookservice_mobileno="+person_number.getText().toString().trim() +"&bookservice_areapincode=761012&bookservice_paymentmode=UPI&bookservice_emailid=" + person_email.getText().toString().trim() +"&booked_order_id="+order_id+"&booked_user_time="+st+"&booked_user_date="+sd+"&bookservice_order_type="+order_type,
+                        "no tag", _book_now__api_listener);
+            }else {
+
+                Toast.makeText(this, "Invalid email or phone no", Toast.LENGTH_SHORT).show();
+            }
+
         }
 
 
@@ -780,7 +827,7 @@ Util.showMessage(getApplicationContext(), e.toString());
 
         {
             HashMap<String, Object> _item = new HashMap<>();
-            _item.put("name", "HOME");
+            _item.put("name", "HOME DELIVERY");
           service_type_list.add(_item);
         }
 
@@ -867,7 +914,9 @@ Util.showMessage(getApplicationContext(), e.toString());
 
 
             try {
-                textview1.setText(Objects.requireNonNull(category_list.get((int) _position).get("name")).toString());
+                textview1.setText(Objects.requireNonNull(category_list.get((int) _position).get("product_name")).toString().toUpperCase());
+                price_from_api = category_list.get((int) _position).get("product_price")+"";
+
 
             }catch (Exception e)
             {
@@ -1069,6 +1118,7 @@ Util.showMessage(getApplicationContext(), e.toString());
         // Create an alert builder
         final AlertDialog builder = new AlertDialog.Builder(Book_Service_Activity.this).create();
 
+
         LayoutInflater inflater3 = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View customLayout = inflater3.inflate(R.layout.pick_date_time_dialog,null);
@@ -1092,7 +1142,7 @@ Util.showMessage(getApplicationContext(), e.toString());
                {
                    sd = date1.getText().toString().trim();
                    st = time1.getText().toString().trim();
-builder.dismiss();
+                    builder.dismiss();
                } else {
 
                    Util.showMessage(getApplicationContext(), "Please select date and time");
@@ -1211,7 +1261,7 @@ builder.dismiss();
 
 
             _textview.setText(final_date);
-            date_text.setText("Selected : "+final_date  +"\n now Click Order now button");
+            date_text.setText("Selected : "+final_date + "\t" + st +"\n now Click Order now button");
             // sd = day;
         };
         showDatePicker(datePickerListener);

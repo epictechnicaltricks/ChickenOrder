@@ -36,7 +36,7 @@
                 android:id="@+id/back"
                 android:layout_width="25dp"
                 android:layout_height="20dp"
-app:tint="#fff"
+                app:tint="#fff"
                 android:src="@drawable/baseline_arrow_back_24"
                 android:scaleType="center"/>
 
@@ -49,7 +49,7 @@ app:tint="#fff"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="0dp"
                 android:padding="3dp"
-                android:text="Book a service"
+                android:text="Order an item"
                 android:textSize="25sp"
                 android:textStyle="bold"
                 android:textColor="#fff"/>
@@ -268,41 +268,13 @@ app:tint="#fff"
 
 
 
-
-
             <LinearLayout
                 android:layout_marginTop="20dp"
                 android:visibility="visible"
-                android:id="@+id/other_person_layout"
+                android:id="@+id/other_person_layout_pickup"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-
-
-                <TextView
-                    android:layout_margin="10dp"
-                    android:textColor="#fff"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-
-                    android:text="Contact person name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-                <EditText
-                    android:id="@+id/person_name"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:textColor="#fff"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColorHint="#4E2B2B"
-                    android:hint="Enter contact person name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
 
                 <TextView
                     android:layout_margin="10dp"
@@ -349,6 +321,49 @@ app:tint="#fff"
                     android:hint="Contact person email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="20dp"
+                android:visibility="visible"
+                android:id="@+id/other_person_layout"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+
+                <TextView
+                    android:layout_margin="10dp"
+                    android:textColor="#fff"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+
+                    android:text="Contact person name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+
+
+
+
+
+                <EditText
+                    android:id="@+id/person_name"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:textColor="#fff"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColorHint="#4E2B2B"
+                    android:hint="Enter contact person name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+
 
                 <TextView
 
